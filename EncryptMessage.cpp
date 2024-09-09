@@ -4,11 +4,21 @@
 #include <random>
 #include "RSA.cpp"
 
-//MUST BE A MULTIPLE OF 3. HIGHER IS BETTER FOR LONGER VALUES
+//MUST BE A MULTIPLE OF 3. HIGHER IS BETTER FOR LONGER MESSAGES
 static const int BLOCKSIZE = 9;
 
-
+/**
+ * @brief Encrypts a message in blocks. Blocks are from size BLOCKSIZE. 
+ * BLOCKSIZE must be a multiple of 3. Higher values are better for longer messages. 
+ * 
+ * @param message The message you want to encrypt
+ * @param encryptionKey The encryption key given by the receiver of the message. 
+ * @param modulus The modulus given by the receiver of the message.
+ * 
+ * @return The encrypted message, or ciphertext. 
+ */
 string encryptMessage(string message, string encryptionKey, string modulus){
+
     string ascii = "";
     string cipherText = "";
     int i = 0;
@@ -21,7 +31,6 @@ string encryptMessage(string message, string encryptionKey, string modulus){
 
     for (i = 0; i <= ascii.length() - BLOCKSIZE; i += BLOCKSIZE){
         string partition = ascii.substr(i, BLOCKSIZE);
-        //cout << partition << " ";
         cipherText += RSAEncryption(encryptionKey, modulus, partition);
         cipherText += " ";
     }
@@ -29,16 +38,8 @@ string encryptMessage(string message, string encryptionKey, string modulus){
     if (i < ascii.length()){
         string remaining = ascii.substr(i);
         cipherText += RSAEncryption(encryptionKey, modulus, remaining);
-        //cout<<remaining<<endl;
+
     }
     return cipherText;
 }
 
-//d 9595502799659191645956353566665847089
-//n 23503530684005996531166929758775217061
-int main(){
-    //cout<<RSAEncryption("65537", "23503530684005996531166929758775217061", "7210110810811133")<<endl;
-    //cout<<RSADecryption("9112779443813110842972144341729453505", "9595502799659191645956353566665847089", "23503530684005996531166929758775217061");
-    cout<<encryptMessage("Hello! This is a message", "65537", "23503530684005996531166929758775217061")<<endl;
-    
-}
