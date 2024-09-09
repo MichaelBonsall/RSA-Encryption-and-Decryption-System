@@ -11,3 +11,6 @@ Generate keys from RSAKeyGenerator() as described above. Then, create a message 
 ![image](https://github.com/user-attachments/assets/1971401f-cdbb-4cad-99e1-b8f60ed3959e)
 
 ![image](https://github.com/user-attachments/assets/f48de0eb-98ed-4c5a-9c03-8821da7ecb2a)
+
+The encryption is done in blocks. To change the size, change BLOCKSIZE in EncrpytMessage.cpp.
+It must be a multiple of 3. A higher block size will be more secure, but it will have preformance losses. 
