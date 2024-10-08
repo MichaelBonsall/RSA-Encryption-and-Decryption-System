@@ -1,4 +1,4 @@
-# RSA-Key-Generator
+# RSA Encryption and Decryption System
 Choose an encryption key, and generate a random decryption key for use in the RSA algorithm. 
 
 To run, run RSA.cpp. If you would like to change your public key, change e to any number greater than 3. Expected output below
