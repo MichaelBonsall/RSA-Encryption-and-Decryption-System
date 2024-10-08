@@ -137,20 +137,3 @@ string RSAEncryption(string e, string n, string m){
 string RSADecryption(string d, string n, string c){
     return stringPowerMod(c, d, n);
 }
-
-
-/*
-int main(){
-    tuple<string, string, string> a = GenerateRSAKeys(); 
-    
-    string e, n, d;
-    tie(e, n, d) = a;
-    cout<<"encryption key e: "<<e<<" modulus n: "<<n<<" decryption key d: "<<d<<"\n";
-    string m = "69";
-    string c = RSAEncryption(e, n, m);
-    cout<<"message: "<<m<<"\n";
-    cout<<"cipher text: "<<c<<"\n";
-    string m2 = RSADecryption(c, d, n);
-    cout<<"decrypted message: "<<m2;
-}
-*/
