@@ -19,6 +19,6 @@ It must be a multiple of 3. A higher block size will be more secure, but it will
 
 ### Configuration ### 
 In RandomPrimeGenerator.cpp, there are two static ints you can change if you want.
-MillerRabinChecks is the number of times the Miller-Rabin primality test is ran. The more iterations, the more likely the number is to be prime, but the default of 20 should suffice (9.09494701×10−13 chance of false prime). 
+MillerRabinChecks is the number of times the Miller-Rabin primality test is ran. The more iterations, the more likely the number is to be prime, but the default of 20 should suffice (9.09494701×10^-13% chance of false prime). 
 
 THREAD_COUNT is the number of threads you wish to compute the RSA keys with. If you want to use all the threads on your machine, use thread::hardware_concurrency() (c++ 11+) to find the number of threads you have. 
