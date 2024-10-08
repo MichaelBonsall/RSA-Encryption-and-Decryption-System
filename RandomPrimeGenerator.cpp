@@ -3,13 +3,23 @@
 #include <bits/stdc++.h>
 #include <random>
 #include "StringMath.cpp"
+#include <thread>
+#include <vector>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
+#include <functional>
 
 
 using namespace std;
 
 //num of times for Miller-Rabin to choose a new a. 20 means chance of composite sneaking through is (1/3)^20 or 1/3486784401
 static int MillerRabinChecks = 20;
- 
+
+//num of threads you want to use for computation. 
+static int THREAD_COUNT = 4;
+
+
 /** 
  * @brief Miller-Rabin Test. Probabilistic primality test. About 1/3 chance of random number chosen to be a strong liar, so looping is recommended.
  * A false return means the number is guaranteed a composite, however a true return means the number is LIKELY prime. 
@@ -44,7 +54,7 @@ bool millerRabinTest(uint64_t num){
 }
 
 /**
- * @brief Generates a random even num between 3 - 64_INT_MAX
+ * @brief Generates a random odd num between 3 - 64_INT_MAX
  * π(N) ≈ n/lg(n) so 20 digit number means about a 4.62% chance of a prime
  * @return uint64_t A 64bit even num
  */
@@ -55,8 +65,51 @@ uint64_t possiblyPrimeNum(){
     if (! (result & 1)){
         result += 1;
     }
+
     return result;
 
+}
+
+
+mutex mtx;
+condition_variable cv;
+atomic<bool> foundPrime(false); 
+atomic<uint64_t> resultPrime(0);
+/**
+ * @brief A helper method for randomPrime() that allows for multi threading. DO NOT USE THIS!! 
+ * 
+ * @param k DONT USE THIS FUNCTION!!
+ * @return uint64_t 
+ */
+uint64_t static randomPrimeThreadRunner(int k){
+    uint64_t num = 0;
+    int firstTwentyPrimes[20] = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73}; 
+    bool prime = false;
+    for(int i = 0; i < k; i++){
+        do{
+            num = possiblyPrimeNum();
+            bool initialFail = false;
+
+            for (int j: firstTwentyPrimes){ //Checks first couple primes before Miller Rabin for efficiency
+                if (num % j == 0){
+                    initialFail = true;
+                    break;
+                }
+            }
+            if (initialFail == true){
+                continue;
+            }
+            if (!millerRabinTest(num)){
+                continue;
+            }
+            else break;
+        }
+        while (!prime);
+    }
+    unique_lock<mutex> lock(mtx);
+    cv.notify_all(); //First thread to find a solution tells all other threads to give up
+    resultPrime = num;
+    return 0;
 }
 
 /**
@@ -67,29 +120,15 @@ uint64_t possiblyPrimeNum(){
  * @return uint64_t A random 64 bit prime
  */
 uint64_t static randomPrime(int k){
-    bool prime = false;
-    uint64_t num = 0;
-    int firstTwentyPrimes[20] = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73}; 
-    for(int i = 0; i < k; i++){
-    do{
-        num = possiblyPrimeNum();
-        bool initialFail = false;
+    vector<thread> threads;
+    for (int i = 0; i < THREAD_COUNT; i++){
+        threads.push_back(thread(randomPrimeThreadRunner, k));
+    }
+    for (thread &th : threads) {
+        if (th.joinable()) {
+            th.join();
+        }
+    }
 
-        for (int j: firstTwentyPrimes){ //Checks first couple primes before Miller Rabin for efficiency
-            if (num % j == 0){
-                initialFail = true;
-                break;
-            }
-        }
-        if (initialFail == true){
-            continue;
-        }
-        if (!millerRabinTest(num)){
-            continue;
-        }
-        else break;
-    }
-    while (!prime);
-    }
-    return num;
+    return resultPrime; 
 }
